@@ -130,7 +130,7 @@ class _MyAppState extends State<MyApp> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  (state is Loaded) ? state.movies.results[index].title : "",
+                  (state is Loaded) ? state.movies.results[index].name : "",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 Text(

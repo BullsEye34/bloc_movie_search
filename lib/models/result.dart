@@ -3,14 +3,14 @@ import 'package:equatable/equatable.dart';
 class Result extends Equatable {
   late String overview;
   late DateTime? releaseDate;
-  late String title;
+  late String name;
   late double voteAverage;
   late String posterPath;
 
   Result(
       {required this.overview,
       required this.releaseDate,
-      required this.title,
+      required this.name,
       required this.voteAverage,
       required this.posterPath});
 
@@ -20,7 +20,7 @@ class Result extends Equatable {
         releaseDate: json["release_date"] == null
             ? null
             : DateTime.parse(json["release_date"]),
-        title: json["title"] == null ? "" : json["title"],
+        name: json["name"] == null ? json["title"] : json["name"],
         posterPath: json["poster_path"],
       );
 
@@ -29,7 +29,7 @@ class Result extends Equatable {
         "overview": overview,
         "release_date":
             "${releaseDate!.year.toString().padLeft(4, '0')}-${releaseDate!.month.toString().padLeft(2, '0')}-${releaseDate!.day.toString().padLeft(2, '0')}",
-        "title": title,
+        "name": name,
         "poster_path": posterPath,
       };
   @override
@@ -37,7 +37,7 @@ class Result extends Equatable {
   List<Object?> get props => [
         overview,
         releaseDate,
-        title,
+        name,
         voteAverage,
         posterPath,
       ];
