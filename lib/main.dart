@@ -115,26 +115,30 @@ class _MyAppState extends State<MyApp> {
   listTile(state, index) => Padding(
         padding: const EdgeInsets.all(10.0),
         child: Container(
+            //height: 120,
             child: Row(
           children: [
+            const SizedBox(
+              width: 10,
+            ),
             Flexible(
-              child: CachedNetworkImage(
-                imageUrl: (state is Loaded)
-                    ? "https://image.tmdb.org/t/p/original/" +
-                        state.movies.results[index].posterPath
-                    : "",
-                height: 100,
-                width: 100,
+              child: Container(
+                height: 120,
+                width: 300,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: CachedNetworkImageProvider((state is Loaded)
+                        ? "https://image.tmdb.org/t/p/original/" +
+                            state.movies.results[index].posterPath
+                        : ""),
+                  ),
+                  borderRadius: BorderRadius.circular(15),
+                ),
               ),
-              /* Image.network(
-                (state is Loaded)
-                    ? "https://image.tmdb.org/t/p/original/" +
-                        state.movies.results[index].posterPath
-                    : "",
-                height: 100,
-                width: 100,
-              ), */
               flex: 2,
+            ),
+            const SizedBox(
+              width: 20,
             ),
             Flexible(
               flex: 5,
