@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tmdb/bloc/movies_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const MaterialApp(
@@ -114,58 +115,62 @@ class _MyAppState extends State<MyApp> {
 
   listTile(state, index) => Padding(
         padding: const EdgeInsets.all(10.0),
-        child: Container(
-            //height: 120,
-            child: Row(
-          children: [
-            const SizedBox(
-              width: 10,
-            ),
-            Flexible(
-              child: Container(
-                height: 120,
-                width: 300,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: CachedNetworkImageProvider((state is Loaded)
-                        ? "https://image.tmdb.org/t/p/original/" +
-                            state.movies.results[index].posterPath
-                        : ""),
+        child: GestureDetector(
+          onTap: () => launch(
+              "https://www.themoviedb.org/movie/${state.movies.results[index].id}"),
+          child: Container(
+              //height: 120,
+              child: Row(
+            children: [
+              const SizedBox(
+                width: 10,
+              ),
+              Flexible(
+                child: Container(
+                  height: 120,
+                  width: 300,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: CachedNetworkImageProvider((state is Loaded)
+                          ? "https://image.tmdb.org/t/p/original/" +
+                              state.movies.results[index].posterPath
+                          : ""),
+                    ),
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                  borderRadius: BorderRadius.circular(15),
                 ),
+                flex: 2,
               ),
-              flex: 2,
-            ),
-            const SizedBox(
-              width: 20,
-            ),
-            Flexible(
-              flex: 5,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    (state is Loaded) ? state.movies.results[index].name : "",
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 15),
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    (state is Loaded)
-                        ? state.movies.results[index].overview
-                        : "",
-                    maxLines: 5,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 11),
-                  ),
-                ],
+              const SizedBox(
+                width: 20,
               ),
-            )
-          ],
-        )),
+              Flexible(
+                flex: 5,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      (state is Loaded) ? state.movies.results[index].name : "",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      (state is Loaded)
+                          ? state.movies.results[index].overview
+                          : "",
+                      maxLines: 5,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 11),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          )),
+        ),
       );
 }

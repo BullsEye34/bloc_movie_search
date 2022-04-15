@@ -6,13 +6,15 @@ class Result extends Equatable {
   late String name;
   late double voteAverage;
   late String posterPath;
+  late int id;
 
   Result(
       {required this.overview,
       required this.releaseDate,
       required this.name,
       required this.voteAverage,
-      required this.posterPath});
+      required this.posterPath,
+      required this.id});
 
   factory Result.fromJson(Map<String, dynamic> json) => Result(
         voteAverage: json["vote_average"].toDouble(),
@@ -22,6 +24,7 @@ class Result extends Equatable {
             : DateTime.parse(json["release_date"]),
         name: json["name"] == null ? json["title"] : json["name"],
         posterPath: json["poster_path"],
+        id: json["id"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -30,15 +33,11 @@ class Result extends Equatable {
         "release_date":
             "${releaseDate!.year.toString().padLeft(4, '0')}-${releaseDate!.month.toString().padLeft(2, '0')}-${releaseDate!.day.toString().padLeft(2, '0')}",
         "name": name,
+        "id": id,
         "poster_path": posterPath,
       };
   @override
   // TODO: implement props
-  List<Object?> get props => [
-        overview,
-        releaseDate,
-        name,
-        voteAverage,
-        posterPath,
-      ];
+  List<Object?> get props =>
+      [overview, releaseDate, name, voteAverage, posterPath, id];
 }
