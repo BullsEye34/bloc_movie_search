@@ -30,28 +30,39 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    moviesBloc.add(GetTrending());
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title:
             const Text('Movie Watcher', style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
+        centerTitle: true,
         elevation: 0,
       ),
       backgroundColor: Colors.white,
       body: BlocProvider(
         create: (context) => moviesBloc,
         child: BlocListener(
-          listener: (context, MoviesState state) {},
           bloc: moviesBloc,
+          listener: (context, MoviesState state) {},
           child: BlocBuilder<MoviesBloc, MoviesState>(
             builder: (context, MoviesState state) {
               if (state is Initial) {
+                moviesBloc.add(GetTrending());
                 return InitialBuilder();
               } else if (state is Loading) {
                 return LoadingBuilder();
               } else if (state is Loaded) {
                 return LoadedBuilder(state);
+              } else if (state is Error) {
+                print(state.message);
+                return const Center(
+                  child: Icon(
+                    Icons.diamond_outlined,
+                    size: 50,
+                    color: Colors.blueAccent,
+                  ),
+                );
               } else {
                 return const Center(
                   child: Icon(
@@ -88,29 +99,23 @@ class _MyAppState extends State<MyApp> {
         child: CircularProgressIndicator(),
       );
 
-  LoadedBuilder(MoviesState state) => Container(
-        child: ListView.builder(
-          physics: const BouncingScrollPhysics(),
-          itemCount: (state is Loaded) ? state.movies.results.length : 0,
-          itemBuilder: (context, index) {
-            return /* ListTile(
-              title: Text(
-                  (state is Loaded) ? state.movies.results[index].title : ""),
-              subtitle: Text((state is Loaded)
-                  ? state.movies.results[index].overview
-                  : ""),
-              leading: Image.network(
-                (state is Loaded)
-                    ? "https://image.tmdb.org/t/p/original/" +
-                        state.movies.results[index].posterPath
-                    : "",
-                height: 100,
-                width: 100,
-              ),
-            ) */
-                listTile(state, index);
-          },
-        ),
+  LoadedBuilder(MoviesState state) => ListView(
+        shrinkWrap: true,
+        children: [
+          MovieInputField(),
+          Container(
+            padding: MediaQuery.of(context).viewInsets,
+            height: MediaQuery.of(context).size.height * 0.70,
+            child: ListView.builder(
+              shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
+              itemCount: (state is Loaded) ? state.movies.results.length : 0,
+              itemBuilder: (context, index) {
+                return listTile(state, index);
+              },
+            ),
+          ),
+        ],
       );
 
   listTile(state, index) => Padding(
@@ -175,4 +180,35 @@ class _MyAppState extends State<MyApp> {
           )),
         ),
       );
+}
+
+class MovieInputField extends StatefulWidget {
+  const MovieInputField({Key? key}) : super(key: key);
+
+  @override
+  State<MovieInputField> createState() => _MovieInputFieldState();
+}
+
+class _MovieInputFieldState extends State<MovieInputField> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: TextField(
+        onSubmitted: submitSearch,
+        decoration: InputDecoration(
+          hintText: "Enter Movie Name",
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          suffixIcon: const Icon(Icons.search),
+        ),
+      ),
+    );
+  }
+
+  submitSearch(String title) {
+    MoviesBloc blocProvider = BlocProvider.of<MoviesBloc>(context);
+    blocProvider.add(GetMovies(title: title));
+  }
 }
