@@ -56,12 +56,51 @@ class _MyAppState extends State<MyApp> {
               } else if (state is Loaded) {
                 return LoadedBuilder(state);
               } else if (state is Error) {
-                print(state.message);
-                return const Center(
-                  child: Icon(
-                    Icons.diamond_outlined,
-                    size: 50,
-                    color: Colors.blueAccent,
+                return Center(
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width / 1.2,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Spacer(),
+                        Text(
+                          state.message,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: showTrending,
+                          child: Container(
+                            width: 300,
+                            height: 100,
+                            decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(10)),
+                            child: const Center(
+                              child: Text(
+                                "Go back to Trending",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        const Icon(
+                          Icons.thumb_down_outlined,
+                          size: 50,
+                          color: Colors.red,
+                        ),
+                        const Spacer(),
+                      ],
+                    ),
                   ),
                 );
               } else {
@@ -181,4 +220,6 @@ class _MyAppState extends State<MyApp> {
           )),
         ),
       );
+
+  showTrending() => moviesBloc.add(GetTrending());
 }
