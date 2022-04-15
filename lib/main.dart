@@ -116,8 +116,10 @@ class _MyAppState extends State<MyApp> {
   listTile(state, index) => Padding(
         padding: const EdgeInsets.all(10.0),
         child: GestureDetector(
-          onTap: () => launch(
-              "https://www.themoviedb.org/movie/${state.movies.results[index].id}"),
+          onTap: () => launch((state is Loaded &&
+                  state.movies.results[index].mediaType == "tv")
+              ? "https://www.themoviedb.org/tv/${state.movies.results[index].id}"
+              : "https://www.themoviedb.org/movie/${state.movies.results[index].id}"),
           child: Container(
               //height: 120,
               child: Row(
