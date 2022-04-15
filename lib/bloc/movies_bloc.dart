@@ -24,6 +24,20 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
         emit(Error(message: e.toString()));
       }
     });
+    on<GetMovies>((event, emit) {
+      // TODO: implement event handler
+      emit(Loading());
+      try {
+        client
+            .get(Uri.parse(
+                "https://api.themoviedb.org/3/search/movie?api_key=43236c9b4ffaa78012ee092b4e4f74d8&language=en-US&page=1&include_adult=false&query=${event.title.toString()}"))
+            .then((value) {
+          emit(Loaded(movies: [DataModelFromJson(value.body)]));
+        });
+      } catch (e) {
+        emit(Error(message: e.toString()));
+      }
+    });
   }
 
   @override
