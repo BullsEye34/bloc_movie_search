@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tmdb/bloc/movies_bloc.dart';
@@ -77,17 +78,18 @@ class _MyAppState extends State<MyApp> {
   InitialBuilder() => Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: const [
             Text("Please wait while we fetch your recommendations"),
           ],
         ),
       );
-  LoadingBuilder() => Center(
+  LoadingBuilder() => const Center(
         child: CircularProgressIndicator(),
       );
 
   LoadedBuilder(MoviesState state) => Container(
         child: ListView.builder(
+          physics: const BouncingScrollPhysics(),
           itemCount: (state is Loaded) ? state.movies.results.length : 0,
           itemBuilder: (context, index) {
             return /* ListTile(
@@ -110,36 +112,56 @@ class _MyAppState extends State<MyApp> {
         ),
       );
 
-  listTile(state, index) => Container(
-          child: Row(
-        children: [
-          Flexible(
-            child: Image.network(
-              (state is Loaded)
-                  ? "https://image.tmdb.org/t/p/original/" +
-                      state.movies.results[index].posterPath
-                  : "",
-              height: 100,
-              width: 100,
+  listTile(state, index) => Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Container(
+            child: Row(
+          children: [
+            Flexible(
+              child: CachedNetworkImage(
+                imageUrl: (state is Loaded)
+                    ? "https://image.tmdb.org/t/p/original/" +
+                        state.movies.results[index].posterPath
+                    : "",
+                height: 100,
+                width: 100,
+              ),
+              /* Image.network(
+                (state is Loaded)
+                    ? "https://image.tmdb.org/t/p/original/" +
+                        state.movies.results[index].posterPath
+                    : "",
+                height: 100,
+                width: 100,
+              ), */
+              flex: 2,
             ),
-            flex: 2,
-          ),
-          Flexible(
-            flex: 5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  (state is Loaded) ? state.movies.results[index].name : "",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                ),
-                Text(
-                  (state is Loaded) ? state.movies.results[index].overview : "",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
-                ),
-              ],
-            ),
-          )
-        ],
-      ));
+            Flexible(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    (state is Loaded) ? state.movies.results[index].name : "",
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(
+                    (state is Loaded)
+                        ? state.movies.results[index].overview
+                        : "",
+                    maxLines: 5,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 11),
+                  ),
+                ],
+              ),
+            )
+          ],
+        )),
+      );
 }
