@@ -31,16 +31,15 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
       // TODO: implement event handler
       emit(Loading());
       try {
-        var response = await client.get(
+        var responsee = await client.get(
             Uri.parse(
-                "https://api.themoviedb.org/3/trending/movies/week?api_key=43236c9b4ffaa78012ee092b4e4f74d8&language=en-US&page=1&include_adult=false"),
+                "https://api.themoviedb.org/3/search/movie?api_key=43236c9b4ffaa78012ee092b4e4f74d8&language=en-US&page=1&include_adult=false&query=${event.title}"),
             headers: <String, String>{
               'Content-Type': 'application/json',
             });
+        data = DataModelFromJson(responsee.body);
 
-        data = await DataModelFromJson(response.body);
-        print(data.results);
-        /* }).whenComplete(() => emit(Loaded(movies: data))); */
+        emit(Loaded(movies: data));
       } catch (e) {
         emit(Error(message: e.toString()));
       }
