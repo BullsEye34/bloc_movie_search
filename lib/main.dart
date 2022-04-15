@@ -105,7 +105,7 @@ class _MyAppState extends State<MyApp> {
           MovieInputField(),
           Container(
             padding: MediaQuery.of(context).viewInsets,
-            height: MediaQuery.of(context).size.height * 0.70,
+            height: MediaQuery.of(context).size.height * 0.77,
             child: ListView.builder(
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),
