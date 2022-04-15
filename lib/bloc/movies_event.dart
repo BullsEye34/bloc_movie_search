@@ -6,3 +6,16 @@ abstract class MoviesEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class GetTrending extends MoviesEvent {
+  @override
+  List<Object> get props => [];
+}
+
+class GetMovies extends MoviesEvent {
+  final String title;
+  GetMovies({required this.title});
+
+  @override
+  List<Object> get props => [title];
+}
