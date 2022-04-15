@@ -18,17 +18,16 @@ class Result extends Equatable {
         voteAverage: json["vote_average"].toDouble(),
         overview: json["overview"],
         releaseDate: DateTime.parse(json["release_date"]),
-        title: json["title"] == null ? null : json["title"],
+        title: json["title"],
         posterPath: json["poster_path"],
       );
 
   Map<String, dynamic> toJson() => {
         "vote_average": voteAverage,
         "overview": overview,
-        "release_date": releaseDate == null
-            ? null
-            : "${releaseDate.year.toString().padLeft(4, '0')}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}",
-        "title": title == null ? null : title,
+        "release_date":
+            "${releaseDate.year.toString().padLeft(4, '0')}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}",
+        "title": title,
         "poster_path": posterPath,
       };
   @override
