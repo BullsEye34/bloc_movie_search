@@ -21,7 +21,7 @@ class Error extends MoviesState {
 }
 
 class Loaded extends MoviesState {
-  final List<DataModel> movies;
+  final DataModel movies;
 
   Loaded({required this.movies});
 
