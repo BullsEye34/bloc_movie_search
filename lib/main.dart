@@ -21,11 +21,24 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late MoviesBloc moviesBloc;
+  final controller = ScrollController();
+  int pageNumber = 1;
+  double offset = 0;
 
   @override
   void initState() {
     // TODO: implement initState
     moviesBloc = MoviesBloc();
+    controller.addListener(() {
+      if (controller.position.maxScrollExtent == controller.offset && (moviesBloc.state is Loaded && !(moviesBloc.state as Loaded).isGet)) {
+        setState(() {
+          offset = controller.offset;
+          pageNumber++;
+        });
+
+        moviesBloc.add(GetTrending(pageNumber: pageNumber));
+      }
+    });
     super.initState();
   }
 
@@ -34,8 +47,7 @@ class _MyAppState extends State<MyApp> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title:
-            const Text('Movie Watcher', style: TextStyle(color: Colors.black)),
+        title: const Text('Movie Watcher', style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         centerTitle: true,
         elevation: 0,
@@ -45,11 +57,15 @@ class _MyAppState extends State<MyApp> {
         create: (context) => moviesBloc,
         child: BlocListener(
           bloc: moviesBloc,
-          listener: (context, MoviesState state) {},
+          listener: (context, MoviesState state) {
+            if (state is Loaded) {
+              WidgetsBinding.instance!.addPostFrameCallback((_) => controller.animateTo(offset, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut));
+            }
+          },
           child: BlocBuilder<MoviesBloc, MoviesState>(
             builder: (context, MoviesState state) {
               if (state is Initial) {
-                moviesBloc.add(GetTrending());
+                moviesBloc.add(GetTrending(pageNumber: pageNumber));
                 return InitialBuilder();
               } else if (state is Loading) {
                 return LoadingBuilder();
@@ -67,19 +83,17 @@ class _MyAppState extends State<MyApp> {
                         Text(
                           state.message,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 20,
                           ),
                         ),
                         const Spacer(),
                         GestureDetector(
-                          onTap: showTrending,
+                          onTap: showTrending(pageNumber),
                           child: Container(
                             width: 300,
                             height: 100,
-                            decoration: BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius: BorderRadius.circular(10)),
+                            decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(10)),
                             child: const Center(
                               child: Text(
                                 "Go back to Trending",
@@ -124,6 +138,7 @@ class _MyAppState extends State<MyApp> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+    controller.dispose();
     moviesBloc.close();
   }
 
@@ -139,30 +154,61 @@ class _MyAppState extends State<MyApp> {
         child: CircularProgressIndicator(),
       );
 
-  LoadedBuilder(MoviesState state) => ListView(
-        shrinkWrap: true,
-        children: [
-          MovieInputField(),
-          Container(
-            padding: MediaQuery.of(context).viewInsets,
-            height: MediaQuery.of(context).size.height * 0.77,
-            child: ListView.builder(
+  LoadedBuilder(MoviesState state) => (state is Loaded)
+      ? (state.isGet)
+          ? ListView(
               shrinkWrap: true,
-              physics: const BouncingScrollPhysics(),
-              itemCount: (state is Loaded) ? state.movies.results.length : 0,
-              itemBuilder: (context, index) {
-                return listTile(state, index);
-              },
-            ),
-          ),
-        ],
-      );
+              children: [
+                const MovieInputField(),
+                Container(
+                  padding: MediaQuery.of(context).viewInsets,
+                  height: MediaQuery.of(context).size.height * 0.77,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    controller: controller,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: state.movies.results.length,
+                    itemBuilder: (context, index) {
+                      return listTile(state, index);
+                    },
+                  ),
+                ),
+              ],
+            )
+          : ListView(
+              shrinkWrap: true,
+              children: [
+                const MovieInputField(),
+                Container(
+                  padding: MediaQuery.of(context).viewInsets,
+                  height: MediaQuery.of(context).size.height * 0.77,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    controller: controller,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: (state is Loaded) ? state.movies.results.length + 1 : 0,
+                    itemBuilder: (context, index) {
+                      if (index < ((state is Loaded) ? state.movies.results.length : 1)) {
+                        return listTile(state, index);
+                      } else {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 32),
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ],
+            )
+      : Container();
 
   listTile(state, index) => Padding(
         padding: const EdgeInsets.all(10.0),
         child: GestureDetector(
-          onTap: () => launch((state is Loaded &&
-                  state.movies.results[index].mediaType == "tv")
+          onTap: () => launch((state is Loaded && state.movies.results[index].mediaType == "tv")
               ? "https://www.themoviedb.org/tv/${state.movies.results[index].id}"
               : "https://www.themoviedb.org/movie/${state.movies.results[index].id}"),
           child: Container(
@@ -178,10 +224,7 @@ class _MyAppState extends State<MyApp> {
                   width: 300,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: CachedNetworkImageProvider((state is Loaded)
-                          ? "https://image.tmdb.org/t/p/original/" +
-                              state.movies.results[index].posterPath
-                          : ""),
+                      image: CachedNetworkImageProvider((state is Loaded) ? "https://image.tmdb.org/t/p/original/" + state.movies.results[index].posterPath : ""),
                     ),
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -198,20 +241,16 @@ class _MyAppState extends State<MyApp> {
                   children: [
                     Text(
                       (state is Loaded) ? state.movies.results[index].name : "",
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 15),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                     ),
                     const SizedBox(
                       height: 5,
                     ),
                     Text(
-                      (state is Loaded)
-                          ? state.movies.results[index].overview
-                          : "",
+                      (state is Loaded) ? state.movies.results[index].overview : "",
                       maxLines: 5,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 11),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
                     ),
                   ],
                 ),
@@ -221,5 +260,5 @@ class _MyAppState extends State<MyApp> {
         ),
       );
 
-  showTrending() => moviesBloc.add(GetTrending());
+  showTrending(int pageNumber) => moviesBloc.add(GetTrending(pageNumber: pageNumber));
 }
