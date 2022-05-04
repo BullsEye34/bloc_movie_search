@@ -14,7 +14,7 @@ class Loading extends MoviesState {}
 class Error extends MoviesState {
   final String message;
 
-  Error({required this.message});
+  const Error({required this.message});
 
   @override
   List<Object> get props => [message];
@@ -23,7 +23,7 @@ class Error extends MoviesState {
 class Loaded extends MoviesState {
   final DataModel movies;
 
-  Loaded({required this.movies});
+  const Loaded({required this.movies});
 
   @override
   List<Object> get props => [movies];
