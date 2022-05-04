@@ -30,7 +30,7 @@ class _MyAppState extends State<MyApp> {
     // TODO: implement initState
     moviesBloc = MoviesBloc();
     controller.addListener(() {
-      if (controller.position.maxScrollExtent == controller.offset) {
+      if (controller.position.maxScrollExtent == controller.offset && (moviesBloc.state is Loaded && !(moviesBloc.state as Loaded).isGet)) {
         setState(() {
           offset = controller.offset;
           pageNumber++;
@@ -154,34 +154,56 @@ class _MyAppState extends State<MyApp> {
         child: CircularProgressIndicator(),
       );
 
-  LoadedBuilder(MoviesState state) => ListView(
-        shrinkWrap: true,
-        children: [
-          const MovieInputField(),
-          Container(
-            padding: MediaQuery.of(context).viewInsets,
-            height: MediaQuery.of(context).size.height * 0.77,
-            child: ListView.builder(
+  LoadedBuilder(MoviesState state) => (state is Loaded)
+      ? (state.isGet)
+          ? ListView(
               shrinkWrap: true,
-              controller: controller,
-              physics: const BouncingScrollPhysics(),
-              itemCount: (state is Loaded) ? state.movies.results.length + 1 : 0,
-              itemBuilder: (context, index) {
-                if (index < ((state is Loaded) ? state.movies.results.length : 1)) {
-                  return listTile(state, index);
-                } else {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 32),
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-              },
-            ),
-          ),
-        ],
-      );
+              children: [
+                const MovieInputField(),
+                Container(
+                  padding: MediaQuery.of(context).viewInsets,
+                  height: MediaQuery.of(context).size.height * 0.77,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    controller: controller,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: state.movies.results.length,
+                    itemBuilder: (context, index) {
+                      return listTile(state, index);
+                    },
+                  ),
+                ),
+              ],
+            )
+          : ListView(
+              shrinkWrap: true,
+              children: [
+                const MovieInputField(),
+                Container(
+                  padding: MediaQuery.of(context).viewInsets,
+                  height: MediaQuery.of(context).size.height * 0.77,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    controller: controller,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: (state is Loaded) ? state.movies.results.length + 1 : 0,
+                    itemBuilder: (context, index) {
+                      if (index < ((state is Loaded) ? state.movies.results.length : 1)) {
+                        return listTile(state, index);
+                      } else {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 32),
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ],
+            )
+      : Container();
 
   listTile(state, index) => Padding(
         padding: const EdgeInsets.all(10.0),

@@ -28,7 +28,7 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
         if (event.pageNumber != 1) {
           data.results.insertAll(0, _prev.results);
         }
-        emit(Loaded(movies: data));
+        emit(Loaded(movies: data, isGet: false));
       } catch (e) {
         emit(Error(message: e.toString()));
       }
@@ -44,7 +44,7 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
             });
         data = DataModelFromJson(responsee.body);
 
-        emit(Loaded(movies: data));
+        emit(Loaded(movies: data, isGet: true));
       } catch (e) {
         emit(Error(message: e.toString()));
       }

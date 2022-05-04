@@ -21,10 +21,11 @@ class Error extends MoviesState {
 }
 
 class Loaded extends MoviesState {
+  final bool isGet;
   final DataModel movies;
 
-  const Loaded({required this.movies});
+  const Loaded({required this.movies, required this.isGet});
 
   @override
-  List<Object> get props => [movies];
+  List<Object> get props => [movies, true];
 }
